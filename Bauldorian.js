@@ -1,6 +1,4 @@
-import { combat } from './combatHandler.js';
 import { checkAndUpdateLevel } from './levelingHandler.js';
-combat;
 function Resource() {
   return {
     resources: [],
@@ -128,12 +126,6 @@ export function createCharacter() {
 const player1 = createCharacter();
 const birchTree = createBirchTree();
 const salmon = createSalmon();
-
-// test combat
-// clicking on enemy card spawns enemy and combat begins
-const goblin1 = createCharacter();
-goblin1.name = 'goblin';
-combat(player1, goblin1);
 
 // test gathering
 startGathering(player1, salmon, (progress) => {
