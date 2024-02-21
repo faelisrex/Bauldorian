@@ -49,8 +49,8 @@ export function createCharacter() {
       attkSpeedMultiplier: 1.0,
     },
     skills: {
-      woodcutting: { type: 'noncombat', level: 1, exp: 0 },
-      fishing: { type: 'noncombat', level: 1, exp: 0 },
+      woodcutting: { type: 'noncombat', level: 1, exp: 0, mastery: 0 },
+      fishing: { type: 'noncombat', level: 1, exp: 0, mastery: 0 },
     },
     inventory: [],
     pauseGathering() {
@@ -72,13 +72,11 @@ const salmon = createSalmon();
 //   // Update progress bar or UI element here with the progress value
 // });
 
-setTimeout(() => {
-  startCuttingWood(player1, birchTree, (progress) => {
-    console.log(`Progress: ${progress}%`);
-    // Update progress bar or UI element here with the progress value
-  });
-}, 5000);
+startCuttingWood(player1, birchTree, (progress) => {
+  // console.log(`Progress: ${progress}%`);
+  // Update progress bar or UI element here with the progress value
+});
 
 setTimeout(() => {
   player1.pauseGathering();
-}, 9000);
+}, 30000);

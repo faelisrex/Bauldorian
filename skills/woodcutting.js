@@ -1,14 +1,15 @@
 import { Resource } from '../Bauldorian.js';
 import { checkAndUpdateLevel } from '../levelingHandler.js';
-export function startCuttingWood(
-  playerCharacter,
-  resource,
-  updateProgressCallback
-) {
+export function startCuttingWood(playerCharacter, resource, updateProgressCallback) {
   playerCharacter.pauseGathering(); // stops current task
 
   let progress = 0; // Initialize progress
-  const totalTime = resource.gatheringTime * 1.0; // Use a multiplier if needed
+
+  // Calculate Time to Gather
+  const skillReduction = player.skills[resource.skill].mastery * 0.005; // 0.5% reduction per skill level
+  // const toolReduction = player.inventory.some(tool => tool.effect === 'reduceGatheringTime') ? 0.10 : 0; // TODO Assuming a flat 10% reduction from a tool
+  const totalTime = resource.gatheringTime * (1 - skillReduction - toolReduction);
+
   let startTime = Date.now(); // Record start time
 
   function gather() {
@@ -16,16 +17,17 @@ export function startCuttingWood(
     const elapsedTime = currentTime - startTime;
     progress = (elapsedTime / totalTime) * 100; // Calculate progress as a continuous cycle
 
+    // Update progress via callback even for progress reset
+    // use progress variable for progress bar
+    updateProgressCallback(progress);
+
     if (progress >= 100) {
       // Reset progress to 0 and start time to current time for continuous looping
       startTime = Date.now();
       progress = 0;
 
       // Add resource to inventory every cycle
-      const existingResource = resource.hasResourceInInventory(
-        resource.resource,
-        playerCharacter
-      );
+      const existingResource = resource.hasResourceInInventory(resource.resource, playerCharacter);
       if (existingResource) {
         existingResource.quantity += 1;
       } else {
@@ -39,13 +41,10 @@ export function startCuttingWood(
       // Add experience points every cycle
       playerCharacter.skills[resource.skill].exp += resource.exp;
       console.log(
-        `${playerCharacter.name} successfully gathered ${resource.resource} and gained ${resource.exp} exp.`
+        `${playerCharacter.name} successfully gathered ${resource.resource} and gained ${resource.exp} exp. Elapsed time: ${elapsedTime}ms`
       );
       checkAndUpdateLevel(playerCharacter, resource.skill);
     }
-
-    // Update progress via callback even for progress reset
-    updateProgressCallback(progress % 100);
 
     // Continue gathering if progress is not 100%
     if (progress < 100) {
@@ -61,7 +60,7 @@ export function createBirchTree() {
   newTree.type = 'wood';
   newTree.name = 'birch tree';
   newTree.exp = 30;
-  newTree.gatheringTime = 3000;
+  newTree.gatheringTime = 5000;
   newTree.resource = 'birch tree wood';
   newTree.skill = 'woodcutting';
   return newTree;
