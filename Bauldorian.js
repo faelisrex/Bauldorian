@@ -1,4 +1,6 @@
+import { combat } from './combatHandler.js';
 import { checkAndUpdateLevel } from './levelingHandler.js';
+combat;
 function Resource() {
   return {
     resources: [],
@@ -34,11 +36,13 @@ function createSalmon() {
 }
 
 function startGathering(playerCharacter, resource, updateProgressCallback) {
+  playerCharacter.pauseGathering(); // stops current task
+
   let progress = 0; // Initialize progress
   const totalTime = resource.gatheringTime * 1.0; // Use a multiplier if needed
   let startTime = Date.now(); // Record start time
 
-  playerCharacter.currentActionId = setInterval(() => {
+  function gather() {
     const currentTime = Date.now();
     const elapsedTime = currentTime - startTime;
     progress = (elapsedTime / totalTime) * 100; // Calculate progress as a continuous cycle
@@ -73,10 +77,17 @@ function startGathering(playerCharacter, resource, updateProgressCallback) {
 
     // Update progress via callback even for progress reset
     updateProgressCallback(progress % 100);
-  }, 100); // Interval for progress update frequency
+
+    // Continue gathering if progress is not 100%
+    if (progress < 100) {
+      playerCharacter.currentActionId = requestAnimationFrame(gather);
+    }
+  }
+
+  playerCharacter.currentActionId = requestAnimationFrame(gather);
 }
 
-function createUser() {
+export function createCharacter() {
   return {
     name: 'Ragnar',
     currentActionId: 0,
@@ -94,12 +105,19 @@ function createUser() {
       def: 100,
       attkSpeed: 3,
     },
+    multipliers: {
+      hpMultiplier: 1.0,
+      apMultiplier: 1.0,
+      defMultiplier: 1.0,
+      attkSpeedMultiplier: 1.0,
+    },
     skills: {
       woodcutting: { type: 'noncombat', level: 1, exp: 0 },
       fishing: { type: 'noncombat', level: 1, exp: 0 },
     },
     inventory: [],
     pauseGathering() {
+      cancelAnimationFrame(this.currentActionId);
       clearInterval(this.currentActionId);
     },
   };
@@ -107,9 +125,15 @@ function createUser() {
 
 // testing area
 // setup
-const player1 = createUser();
+const player1 = createCharacter();
 const birchTree = createBirchTree();
 const salmon = createSalmon();
+
+// test combat
+// clicking on enemy card spawns enemy and combat begins
+const goblin1 = createCharacter();
+goblin1.name = 'goblin';
+combat(player1, goblin1);
 
 // test gathering
 startGathering(player1, salmon, (progress) => {
@@ -118,5 +142,12 @@ startGathering(player1, salmon, (progress) => {
 });
 
 setTimeout(() => {
-  player1.pauseGathering();
+  startGathering(player1, birchTree, (progress) => {
+    console.log(`Progress: ${progress}%`);
+    // Update progress bar or UI element here with the progress value
+  });
 }, 5000);
+
+setTimeout(() => {
+  player1.pauseGathering();
+}, 9000);
