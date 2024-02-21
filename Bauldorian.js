@@ -1,6 +1,4 @@
-import { checkAndUpdateLevel } from './levelingHandler';
-
-checkAndUpdateLevel;
+import { checkAndUpdateLevel } from './levelingHandler.js';
 function Resource() {
   return {
     resources: [],
@@ -78,37 +76,47 @@ function startGathering(playerCharacter, resource, updateProgressCallback) {
   }, 100); // Interval for progress update frequency
 }
 
-const user = {
-  name: 'Ragnar',
-  hp: 100,
-  currentActionId: 0,
-  attributes: {
-    strength: 1,
-    dexterity: 1,
-    constitution: 1,
-    intelligence: 1,
-    wisdom: 1,
-    charisma: 1,
-  },
-  skills: {
-    woodcutting: { type: 'noncombat', level: 1, exp: 0 },
-    fishing: { type: 'noncombat', level: 1, exp: 0 },
-  },
-  inventory: [],
-  pauseGathering() {
-    clearInterval(this.currentActionId);
-  },
-};
+function createUser() {
+  return {
+    name: 'Ragnar',
+    currentActionId: 0,
+    attributes: {
+      strength: 1,
+      dexterity: 1,
+      constitution: 1,
+      intelligence: 1,
+      wisdom: 1,
+      charisma: 1,
+    },
+    combatStats: {
+      hp: 100,
+      ap: 100,
+      def: 100,
+      attkSpeed: 3,
+    },
+    skills: {
+      woodcutting: { type: 'noncombat', level: 1, exp: 0 },
+      fishing: { type: 'noncombat', level: 1, exp: 0 },
+    },
+    inventory: [],
+    pauseGathering() {
+      clearInterval(this.currentActionId);
+    },
+  };
+}
 
 // testing area
 // setup
+const player1 = createUser();
 const birchTree = createBirchTree();
 const salmon = createSalmon();
 
 // test gathering
-startGathering(user, salmon, (progress) => {
+startGathering(player1, salmon, (progress) => {
   console.log(`Progress: ${progress}%`);
   // Update progress bar or UI element here with the progress value
 });
 
-// user.pauseGathering();
+setTimeout(() => {
+  player1.pauseGathering();
+}, 5000);
